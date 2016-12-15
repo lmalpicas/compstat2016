@@ -1,0 +1,1 @@
+vino<-read.csv("wine.csv")

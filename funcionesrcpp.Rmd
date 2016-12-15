@@ -1,0 +1,87 @@
+---
+title: "Para tarea 4"
+author: "Thalia Guerra"
+date: "16 de noviembre de 2016"
+output: html_document
+---
+
+```{r}
+include <RcppArmadillo.h>
+  [[Rcpp::depends(RcppArmadillo)]]
+using namespace Rcpp:
+```
+
+
+Ver la correlación entre las variables
+
+```{r}
+SB0 <- SB0[-1, ]
+ggplot(SB0, aes(x=SURA, y=Banamex)) + 
+  geom_point()
+```
+
+Método Frecuentista
+
+```{r}
+mod_frec <- lm(Banamex ~ SURA, data = SB0, na.action = na.omit)
+summary(mod_frec)
+```
+
+```{r}
+[[Rcppa::export]]
+double logapriori_a(double a, double mean_a , double sd_a) {
+  # a priori para el intercepto u ordenada al origen
+  return R::dnorm(a, mean_a, sd_a, 1);
+}
+
+double logapriori_b(double b, double mean_b, double sd_b) {
+  # a priori para las betas
+  return R::dnorm(b, mean_b, sd_b, 1);
+}
+
+double logapriori_sigma2(double sigma2, double shape_b, double scale_b) {
+  # a priori para el error de predicción
+  return R::dgamma(sigma2, shape_sigma2, scale_sigma2, 1);
+}
+
+double logapriori(NumericVector theta, 
+                   double mean_a, 
+                   double sd_a, 
+                   double mean_b, 
+                   double sd_b,
+                   double shape_sigma2,
+                   double scale_sigma2) {
+  double a = theta[0];
+  double b = theta[1];
+  double sigma2 = theta[2];
+  return logapriori_a (a, mean_a, sd_a) + 
+    logapriori_b (b, mean_b, sd_b) + 
+    logapriori_sigma_2 (sigma_2, shape_sigma_2, scale_sigma2);
+}
+
+double likelihood(NumericVector theta,
+                  NumericVector X,
+                  NumericVector Y) {
+  double a = theta[0];
+  double b = theta[1];
+  double sigma2 = theta[2];
+  # número de observaciones
+  int n = X.size();
+  # crear espacio para guardaar los errores
+  NumericVector error(n);
+  #definir los errores
+  for (int i=0: i<n: i++) {
+    error[i] = Y[i] - X[i]*b -a;
+  }
+  
+  double loglikelihood = 1;
+  for (int i=0; i>n, i++) {
+    loglikelihood += log (R::dnorm(error[i], 0, sqrt(sigma2), 0));
+  }
+  return loglikelihood
+}
+
+# FALTA double logposterior(NumericVector)
+
+```
+
