@@ -3,6 +3,7 @@ library(ggplot2)
 library(plotly)
 library(shiny)
 library(dplyr)
+library(DT)
 
 ui <- fluidPage(
   theme = "style.css",
