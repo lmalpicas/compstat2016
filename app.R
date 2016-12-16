@@ -4,6 +4,7 @@ library(plotly)
 library(shiny)
 library(dplyr)
 library(DT)
+library(invgamma)
 
 ui <- fluidPage(
   theme = "style.css",
